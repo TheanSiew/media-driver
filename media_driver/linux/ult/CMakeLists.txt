@@ -51,10 +51,3 @@ endif ()
 
 add_subdirectory(libdrm_mock)
 add_subdirectory(ult_app)
-
-enable_testing()
-add_test(NAME test_devult COMMAND devult ${UMD_PATH})
-set_tests_properties(test_devult
-    PROPERTIES PASS_REGULAR_EXPRESSION "PASS")
-set_tests_properties(test_devult
-    PROPERTIES FAIL_REGULAR_EXPRESSION "FAIL")

@@ -75,13 +75,9 @@ if (DEFINED BYPASS_MEDIA_ULT AND "${BYPASS_MEDIA_ULT}" STREQUAL "yes")
     message("-- media -- BYPASS_MEDIA_ULT = ${BYPASS_MEDIA_ULT}")
 else ()
     if (ENABLE_NONFREE_KERNELS)
-        add_custom_target(RunULT ALL DEPENDS ${LIB_NAME} devult)
-
-        add_custom_command(
-            TARGET RunULT
-            POST_BUILD
-            COMMAND LD_PRELOAD=${MEDIA_MISC_LIB}:../libdrm_mock/libdrm_mock.so ./devult ../../../${LIB_NAME}.so
-            WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-            COMMENT "Running devult...")
+        add_test(
+            NAME ULT
+            COMMAND env LD_PRELOAD=$<TARGET_FILE:drm_mock> $<TARGET_FILE:devult> ../../../${LIB_NAME}.so
+        )
         endif ()
 endif ()
