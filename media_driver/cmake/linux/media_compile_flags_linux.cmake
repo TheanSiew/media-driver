@@ -53,8 +53,6 @@ set(MEDIA_COMPILER_FLAGS_COMMON
 
     # Enable c++14 features
     -std=c++14
-    # -m32 or -m64
-    -m${ARCH}
 
     # Global defines
     -DLINUX=1
@@ -77,14 +75,6 @@ if(${UFO_MARCH} STREQUAL "slm")
         -maes
         # Optimizing driver for Intel
         -mtune=atom
-    )
-endif()
-
-if(${ARCH} STREQUAL "64")
-    set(MEDIA_COMPILER_FLAGS_COMMON
-        ${MEDIA_COMPILER_FLAGS_COMMON}
-        -D_AMD64_
-        -D__CT__
     )
 endif()
 
