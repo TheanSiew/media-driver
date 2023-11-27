@@ -219,3 +219,15 @@ static struct GfxDeviceInfo arlInfo = {
 
 static bool arlsDevice7d67 = DeviceInfoFactory<GfxDeviceInfo>::
     RegisterDevice(0x7D67, &arlInfo);
+
+static bool arlDevice7d51 = DeviceInfoFactory<GfxDeviceInfo>::
+    RegisterDevice(0x7D51, &arlInfo);
+
+static bool arlDevice7dd1 = DeviceInfoFactory<GfxDeviceInfo>::
+    RegisterDevice(0x7DD1, &arlInfo);
+
+static bool arlDevice7d67 = DeviceInfoFactory<GfxDeviceInfo>::
+    RegisterDevice(0x7D67, &arlInfo);
+
+static bool arlDevice7d41 = DeviceInfoFactory<GfxDeviceInfo>::
+    RegisterDevice(0x7D41, &arlInfo);
