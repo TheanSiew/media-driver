@@ -67,6 +67,8 @@ int32_t g_mosMemoryFailSimulateAllocCounter = 0;
 int32_t *MosUtilities::m_mosAllocMemoryFailSimulateAllocCounter = &g_mosMemoryFailSimulateAllocCounter;
 #endif
 
+static bool s_skipToReportReg = false;
+
 double MosUtilities::MosGetTime()
 {
     struct timespec ts = {};
@@ -1542,7 +1544,6 @@ MOS_STATUS MosUtilities::MosUserFeatureNotifyChangeKeyValue(
 MOS_STATUS MosUtilities::MosInitializeReg(RegBufferMap &regBufferMap)
 {
     MOS_STATUS status = MOS_STATUS_SUCCESS;
-
     std::ifstream regStream;
     try
     {
@@ -1551,6 +1552,10 @@ MOS_STATUS MosUtilities::MosInitializeReg(RegBufferMap &regBufferMap)
         {
             std::string id       = "";
 
+            static const char *disableReportRegKeyList[] = {
+                "INTEL MEDIA ALLOC MODE"
+            };
+            static const uint32_t disableReportRegKeyListCount = sizeof(disableReportRegKeyList) / sizeof(disableReportRegKeyList[0]);
             while(!regStream.eof())
             {
                 std::string line = "";
@@ -1579,33 +1584,49 @@ MOS_STATUS MosUtilities::MosInitializeReg(RegBufferMap &regBufferMap)
                     {
                         continue;
                     }
-
                     std::size_t pos = line.find("=");
                     if (std::string::npos != pos && !id.empty())
                     {
                         std::string name = line.substr(0,pos);
                         std::string value = line.substr(pos+1);
-                        auto        &keys  = regBufferMap[id];
-                        keys[name]       = value;
+                        if (name.size() > 0 && value.size() > 0)
+                        {
+                            auto &keys = regBufferMap[id];
+                            keys[name] = value;
+                            if (s_skipToReportReg == false && id == USER_SETTING_CONFIG_PATH)
+                            {
+                                for (uint32_t i = 0; i < disableReportRegKeyListCount; i++)
+                                {
+                                    if (strcmp(name.c_str(), disableReportRegKeyList[i]) == 0)
+                                    {
+                                        s_skipToReportReg = true;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }
-
         }
     }
     catch(const std::exception &e)
     {
         status = MOS_STATUS_FILE_OPEN_FAILED;
     }
-
     regStream.close();
-
     return status;
 }
 
 MOS_STATUS MosUtilities::MosUninitializeReg(RegBufferMap &regBufferMap)
 {
     MOS_STATUS status = MOS_STATUS_SUCCESS;
+
+    if (s_skipToReportReg)
+    {
+        return MOS_STATUS_SUCCESS;
+    }
+
     if (regBufferMap.size() == 0)
     {
         return MOS_STATUS_SUCCESS;
